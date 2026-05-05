@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>Simulador de Empréstimo</title>
+  </head>
+
+  <body>
+    <section>
+      <div>
+        <h1>Simulador de Empréstimo</h1>
+        <form id="loan-form">
+          <p>
+            <label for="renda-bruta">Renda Bruta Mensal (R$):</label>
+            <!-- type="number" garante que o teclado mobile seja numérico e o step="0.01" permite decimais -->
+            <input
+              type="number"
+              id="renda-bruta"
+              step="0.01"
+              min="0"
+              placeholder="Ex: 3500.00"
+              required
+            />
+          </p>
+          <p>
+            <label for="emprestimo">Valor do Empréstimo (R$):</label>
+            <input
+              type="number"
+              id="emprestimo"
+              step="0.01"
+              min="0"
+              placeholder="Ex: 10000.00"
+              required
+            />
+          </p>
+          <p>
+            <label for="prazo">Prazo do Empréstimo (meses):</label>
+            <input
+              type="number"
+              id="prazo"
+              min="1"
+              placeholder="Ex: 12"
+              required
+            />
+          </p>
+
+          <button type="button" onclick="calculo_emprestimo()">
+            Calcular Parcelas
+          </button>
+
+          <div id="display-resultado">
+            <p id="valor-parcela-texto">Valor da Parcela: R$ 0,00</p>
+            <h2 id="status-resultado">Resultado</h2>
+            <p
+              id="motivo-erro"
+              style="font-size: 0.9rem; color: #666; margin-top: 10px"
+            ></p>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <script>
+      function calculo_emprestimo() {
+        // Pegando os valores
+        const renda_bruta = parseFloat(
+          document.getElementById("renda-bruta").value,
+        );
+        const valor_base = parseFloat(
+          document.getElementById("emprestimo").value,
+        );
+        const prazo = parseInt(document.getElementById("prazo").value);
+
+        const status_h2 = document.getElementById("status-resultado");
+        const parcela_p = document.getElementById("valor-parcela-texto");
+
+        // Validação simples
+        if (
+          isNaN(renda_bruta) ||
+          isNaN(valor_base) ||
+          isNaN(prazo) ||
+          prazo <= 0
+        ) {
+          status_h2.innerHTML = "Preencha todos os campos corretamente";
+          parcela_p.innerHTML = "Valor da Parcela: R$ 0,00";
+          return;
+        }
+
+        // Lógica de juros (sua lógica original de 2% ao ano)
+        let emprestimo_com_juros = valor_base;
+        let prazo_ano = Math.trunc(prazo / 12);
+
+        if (prazo_ano >= 1) {
+          emprestimo_com_juros += valor_base * (prazo_ano * 0.02);
+        }
+
+        // Cálculo da parcela
+        let valor_parcela = emprestimo_com_juros / prazo;
+
+        // Exibe o valor da parcela formatado
+        parcela_p.innerHTML = `Valor da Parcela: <strong>R$ ${valor_parcela.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>`;
+
+        // Verificação de risco (30% da renda)
+        if (valor_parcela > renda_bruta * 0.3) {
+          status_h2.innerHTML = "Risco de comprometimento de renda";
+          status_h2.style.color = "#d9534f"; // Cor de alerta (opcional)
+        } else {
+          status_h2.innerHTML = "Condição adequada";
+          status_h2.style.color = "#2d5a27"; // Cor de sucesso (verde do seu CSS)
+        }
+      }
+    </script>
+  </body>
+</html>
